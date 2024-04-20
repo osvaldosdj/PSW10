@@ -14,7 +14,9 @@ def home(request):
         medicos = DadosMedico.objects.all()
         medico_filtrar = request.GET.get('medico')
         especialidades_filtrar = request.GET.getlist('especialidades')
-
+        minhas_consultas = Consulta.objects.filter(paciente=request.user).filter(data_aberta__data__gte=datetime.now())
+        
+        print(minhas_consultas)
         if medico_filtrar:
             medicos = medicos.filter(nome__icontains = medico_filtrar)
 
@@ -22,7 +24,7 @@ def home(request):
             medicos = medicos.filter(especialidade_id__in=especialidades_filtrar)
             
         especialidades = Especialidades.objects.all()
-        return render(request, 'home.html', {'medicos': medicos, 'especialidades': especialidades, 'is_medico': is_medico(request.user) })
+        return render(request, 'home.html', {'minhas_consultas': minhas_consultas, 'medicos': medicos, 'especialidades': especialidades, 'is_medico': is_medico(request.user) })
         
 
 @login_required
