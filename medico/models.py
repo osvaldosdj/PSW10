@@ -1,8 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
-from datetime import datetime
+from datetime import datetime, timedelta
+
 
 # Create your models here.
+
+def is_medico(user):
+    return DadosMedico.objects.filter(user=user).exists()
 
 class Especialidades(models.Model):
     especialidade = models.CharField(max_length=100)
@@ -34,6 +38,14 @@ class DadosMedico(models.Model):
         proxima_data = DatasAbertas.objects.filter(user=self.user).filter(data__gt=datetime.now()).filter(agendado=False).order_by('data').first()
         return proxima_data
 
+    @property
+    def diferenca_dias(self):
+        proxima_data = self.proxima_data
+        if proxima_data:
+            diferenca = proxima_data.data - datetime.now()
+            return diferenca.days
+        return None
+
 
 class DatasAbertas(models.Model):
     data = models.DateTimeField()
@@ -42,3 +54,5 @@ class DatasAbertas(models.Model):
 
     def __str__(self):
         return str(self.data)
+    
+

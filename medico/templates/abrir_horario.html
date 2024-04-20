@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
+
 {% block 'head' %}
     <link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}">
     <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
@@ -9,6 +10,7 @@
 
 
 {% block 'body' %}
+{% include "partials/navbar.html" %}
 
 
     <div class="container">

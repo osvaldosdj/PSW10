@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+
 {% load humanize %} {# Importa os filtros humanize para usar o naturalday #}
 
 {% block 'head' %}
@@ -14,6 +15,8 @@
 
 
 {% block 'body' %}
+
+{% include "partials/navbar.html" %}
 
     <div class="container">
         <br><br>

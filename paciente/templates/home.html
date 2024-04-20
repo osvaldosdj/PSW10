@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
+
 {% block 'head' %}
     <link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}">
     <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
@@ -11,6 +12,7 @@
 
 
 {% block 'body' %}
+{% include "partials/navbar.html" %}
 
 <br><br>
 
@@ -63,13 +65,13 @@
                              Aguarde uma data.
                         {% endif %}
                         </p>
-                        
+                       
                     <a href="{% url 'escolher_horario' medico.id %}" class="btn btn-success btn-dark-color">Agendar</a>
                 </div>
                 <br>
                 {% endfor %}
                 
-
+                
                 
 
 
@@ -80,7 +82,9 @@
             <p style="font-size: 25px" class="p-bold">Lembretes</p>
 
             <p class="bg-main-lembrete">
-                <span class="p-bold"><i class="bi bi-exclamation-triangle-fill icon-differential"></i>&nbsp&nbsp Consulta com Pedro Sampario em 7 dias.</span>
+                {% for medico in medicos %}
+                <span class="p-bold"><i class="bi bi-calendar-check icon-differential"></i>&nbsp&nbsp Consulta com {{medico.nome}} em {{medico.diferenca_dias}} dias.</span><br><br>
+                {% endfor %}
             </p>
 
 
