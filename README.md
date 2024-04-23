@@ -12,6 +12,7 @@ Sistema de Consultas médicas
 - `Funcionalidade 7`: Incluir observações/anotações durante a consulta na tela do médico
 - `Funcionalidade 8`: Após finalizar/cancelar consulta não permitir alterar o campo observações/anotações
 - `Funcionalidade 9`: Alterar para que o cadastro de médicos seja realizado somente por admins
+- `Funcionalidade 10`: Remoção de Arquivos na tela da área do médico
 
 
 ## ✔️ Tecnologias utilizadas
