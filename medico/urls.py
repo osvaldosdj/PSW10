@@ -13,5 +13,6 @@ urlpatterns = [
     path('add_documento/<int:id_consulta>/', views.add_documento, name="add_documento"),
     path('salvar_observacao/<int:id_consulta>/', views.salvar_observacao, name="salvar_observacao"),
     path('dashboard/', views.grafico_desempenho_medico, name='dashboard'),
+    path('del_documento/<int:id_consulta>/<int:id_documento>/', views.del_documento, name="del_documento"),
 ] 
 
