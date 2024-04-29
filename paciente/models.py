@@ -13,10 +13,18 @@ class Consulta(models.Model):
         ('I', 'Iniciada')
 
     )
+
+    pagto_status_choices = (
+        ('S', 'Sim'),
+        ('N', 'Não'),
+        
+    )
+
     paciente = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     data_aberta = models.ForeignKey(DatasAbertas, on_delete=models.DO_NOTHING)
     status = models.CharField(max_length=1, choices=status_choices, default='A')
     link = models.URLField(null=True, blank=True)
+    status_pagto = models.CharField(max_length=1, choices=pagto_status_choices, default='N')
 
     @property
     def diferenca_dias(self):

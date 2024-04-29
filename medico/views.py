@@ -97,11 +97,29 @@ def abrir_horario(request):
 
 @login_required
 def consultas_medico(request):
+
+    if request.method == "POST":
+        data_filtrada = request.POST.get('data_filtrada')
+        
+        if not data_filtrada :
+            messages.add_message(request, constants.WARNING, 'Você precisa fornecer uma data para filtro.')
+            hoje = datetime.now().date()
+            consultas_hoje = Consulta.objects.filter(data_aberta__user=request.user).filter(data_aberta__data__gte=hoje).filter(data_aberta__data__lt=hoje + timedelta(days=1))
+            consultas_restantes = Consulta.objects.exclude(id__in=consultas_hoje.values('id')).filter(data_aberta__user=request.user)
+
+            return render(request, 'consultas_medico.html', {'consultas_hoje': consultas_hoje, 'consultas_restantes': consultas_restantes, 'is_medico': is_medico(request.user)})
+        
+        data_filtrada = datetime.strptime(data_filtrada, '%Y-%m-%d')
+        consultas_hoje = Consulta.objects.filter(data_aberta__user=request.user).filter(data_aberta__data__gte=data_filtrada).filter(data_aberta__data__lt=data_filtrada + timedelta(days=1))
+        consultas_restantes = Consulta.objects.exclude(id__in=consultas_hoje.values('id')).filter(data_aberta__user=request.user)
+        return render(request, 'consultas_medico.html', {'consultas_hoje': consultas_hoje, 'is_medico': is_medico(request.user)})
+
     if not is_medico(request.user):
         messages.add_message(request, constants.WARNING, 'Somente médicos podem acessar essa página.')
         return redirect('/usuarios/sair')
     
     hoje = datetime.now().date()
+    
 
     consultas_hoje = Consulta.objects.filter(data_aberta__user=request.user).filter(data_aberta__data__gte=hoje).filter(data_aberta__data__lt=hoje + timedelta(days=1))
     consultas_restantes = Consulta.objects.exclude(id__in=consultas_hoje.values('id')).filter(data_aberta__user=request.user)
@@ -144,16 +162,29 @@ def consulta_area_medico(request, id_consulta):
 
 @login_required
 def finalizar_consulta(request, id_consulta):
+    status_pagto = request.GET.get('pagto')
+    print("Paga:", status_pagto)
+   
     if not is_medico(request.user):
         messages.add_message(request, constants.WARNING, 'Somente médicos podem acessar essa página.')
         return redirect('/usuarios/sair')
-    
     
     consulta = Consulta.objects.get(id=id_consulta)
     
     if request.user != consulta.data_aberta.user:
         messages.add_message(request, constants.ERROR, 'Essa consulta não é sua!.')
         return redirect(f'/medicos/abrir_horario/')
+    
+    if not status_pagto:
+        messages.add_message(request, constants.ERROR, 'É preciso informar se houve ou não o pagamento da consulta antes de finalizar.')
+        return redirect(f'/medicos/consulta_area_medico/{id_consulta}')
+    
+    if status_pagto == 'S':
+        consulta.status_pagto == 'S'
+    else:     
+        messages.add_message(request, constants.WARNING, 'Esta consulta não foi paga ainda')
+        consulta.status_pagto == 'N'
+
 
     consulta.status = 'F'
     consulta.save()
@@ -208,6 +239,29 @@ def add_documento(request, id_consulta):
     documento.save()
 
     messages.add_message(request, constants.SUCCESS, 'Documento enviado com sucesso!')
+    return redirect(f'/medicos/consulta_area_medico/{id_consulta}')
+
+
+@login_required
+def del_documento(request, id_consulta, id_documento):
+    if not is_medico(request.user):
+        messages.add_message(request, constants.WARNING, 'Somente médicos podem acessar essa página.')
+        return redirect('/usuarios/sair')
+    
+    consulta = Consulta.objects.get(id=id_consulta)
+    
+    if consulta.data_aberta.user != request.user:
+        messages.add_message(request, constants.ERROR, 'Essa consulta não é sua!')
+        return redirect(f'/medicos/consultas_medico')
+    
+    documento = Documento.objects.get(id=id_documento)
+
+    #print(documento.titulo)
+    #print(documento.id)
+
+    documento.delete()
+
+    messages.add_message(request, constants.SUCCESS, 'Documento removido com sucesso!')
     return redirect(f'/medicos/consulta_area_medico/{id_consulta}')
 
 

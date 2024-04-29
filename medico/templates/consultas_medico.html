@@ -25,21 +25,19 @@
             {% endfor %}
         {% endif %}
         <h2><span class="color-dark">Suas consultas</span></h2>
-
+        <form action="{% url 'consultas_medico'%}" method="POST" > {%csrf_token%}        
         <div class="row">
-
+            
             <div class="col-md">
-                <input type="text" name="especialidades" id="" class="form-control shadow-main-color" placeholder="Especialidades médias">
-            </div>
-            <div class="col-md">
-                <input type="date" name="data" id="" class="form-control shadow-main-color" placeholder="Data da consulta">
+                <input type="date" name="data_filtrada" id="" class="form-control shadow-main-color" placeholder="Data da consulta">
 
             </div>
             <div class="col-md">
                 <input type="submit" value="Filtrar" class="btn btn-dark-color-outline">
             </div>
+            
         </div>
-
+        </form>    
         <br>
         
         <h2><span class="color-dark">Hoje</span></h2>
@@ -76,6 +74,7 @@
                     <th scope="col">Pacientes</th>
                     <th scope="col">Status</th>
                     <th scope="col">Data</th>
+                    <th scope="col">Pagamento</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -84,6 +83,7 @@
                             <td><a href="{% url 'consulta_area_medico' consulta.id %}">{{consulta.paciente}}</a></td>
                             <td>{{consulta.get_status_display}}</td>
                             <td>{{consulta.data_aberta.data}}</td>
+                            <td>{{consulta.status_pagto}}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

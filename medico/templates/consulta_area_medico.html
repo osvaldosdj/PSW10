@@ -61,7 +61,7 @@
                         <p><i class="{% if consulta.status == 'C' %}color-dark{% endif %} bi bi-check-circle-fill"></i> Consulta Cancelada</p>
                     </div>
                     <div class="col-md">
-                        <p><i class="bi bi-check-circle-fill"></i> Consulta Avaliada</p>
+                        <p><i class="{% if consulta.status_pagto == 'S' %}color-dark{% endif %} bi bi-check-circle-fill"></i> Consulta Paga</p>
                     </div>
                 </div>
                 <hr>
@@ -102,17 +102,19 @@
                     {% endif %}
                     
                 </form>
+
                 <hr>
                 <br>
                     {%  for documento in documentos  %}
                         <a href="{{documento.documento.url}}" class="link documentos"><i class="bi bi-file-arrow-down"></i> {{documento.titulo}} - {{documento.consulta.data_aberta.data.year}}</a>
+                        <a href="{% url 'del_documento' consulta.id documento.id %}" class="btn btn-dark-color-outline btn-lg" name="del_documento">-</a>
                         <br>
                         <br>
                         <br>
                     {% endfor %}
                 
                 <hr>    
-                    <form action="{% url 'salvar_observacao' consulta.id %}" method="POST" enctype="multipart/form-data"> {%csrf_token%}
+                    <form action="{% url 'salvar_observacao' consulta.id %}" method="POST" > {%csrf_token%}
                         <textarea name="descricao" class="form-control shadow-main-color" placeholder="Observações..."></textarea>
                         <br>
                         {% if consulta.status == 'C' %}
@@ -132,10 +134,19 @@
                        
                     {% endfor %}
                     <hr>
+                    <h3 class="p-bold">Pagamento da Consulta</h3>
                     <br>
-                <hr>    
 
-                <a href="{%url 'finalizar_consulta' consulta.id %}" class="btn btn-primary">Finalizar consulta</a> 
+                    
+                    <form method="GET" action="{% url 'finalizar_consulta' consulta.id %}"> 
+                        <input type="radio" id="pagto_sim" name="pagto" value="S" >
+                        <label for="pagto_sim"> Sim </label>
+                        <input type="radio" id="pagto_nao" name="pagto" value="N">
+                        <label for="pagto_nao"> Não </label> <br> <br>
+                        <button type="submit" class="btn btn-primary">Finalizar consulta</button>
+                    </form>
+                   <br>
+                    
                 <a href="{%url 'cancelar_consulta' consulta.id %}" class="btn btn-primary">Cancelar consulta</a>
             </div>
         </div>
