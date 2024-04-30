@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from medico.models import DatasAbertas, DadosMedico
 from datetime import datetime, timedelta
 
+#from paciente.views import consulta
+
 # Create your models here.
 
 class Consulta(models.Model):
@@ -29,15 +31,11 @@ class Consulta(models.Model):
     @property
     def diferenca_dias(self):
         try:
-            medico = DadosMedico.objects.get(user=self.data_aberta.user)
-            proxima_data_medico = medico.proxima_data
-            if proxima_data_medico:
-                diferenca = proxima_data_medico.data.date() - datetime.now().date()
-                return diferenca.days
-        except DadosMedico.DoesNotExist:
-            pass
-        return None
-
+            diferenca = (self.data_aberta.data.date() - datetime.now().date()).days
+            return diferenca
+        except AttributeError:
+            return None
+    
     def __str__(self):
         return self.paciente.username
 

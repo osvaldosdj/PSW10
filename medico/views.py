@@ -6,8 +6,7 @@ from medico.models import DadosMedico, Especialidades, DatasAbertas, is_medico
 from django.contrib.messages import constants
 from django.contrib import messages
 from paciente.models import Consulta, Documento, Observacoes
-from PIL import Image, ImageDraw, ImageFont
-from django.http import HttpResponse
+from django.db.models import Count
 
 
 # Create your views here.
@@ -20,9 +19,9 @@ def cadastro_medico(request):
         messages.add_message(request, constants.WARNING, 'Você já está cadastrado como médico.')
         return redirect('/medicos/abrir_horario')
     
-    if not is_medico(request.user):
-        messages.add_message(request, constants.WARNING, 'você não tem acesso a essa página.')
-        return redirect('/usuarios/sair')
+    #if not is_medico(request.user):
+    #    messages.add_message(request, constants.WARNING, 'você não tem acesso a essa página.')
+    #    return redirect('/usuarios/sair')
 
     if request.method == "GET":
         especialidades = Especialidades.objects.all()
@@ -98,29 +97,25 @@ def abrir_horario(request):
 @login_required
 def consultas_medico(request):
 
+    if not is_medico(request.user):
+        messages.add_message(request, constants.WARNING, 'Somente médicos podem acessar essa página.')
+        return redirect('/usuarios/sair')
+    
     if request.method == "POST":
         data_filtrada = request.POST.get('data_filtrada')
-        
         if not data_filtrada :
-            messages.add_message(request, constants.WARNING, 'Você precisa fornecer uma data para filtro.')
+            #messages.add_message(request, constants.WARNING, 'Você precisa fornecer uma data para filtro.')
             hoje = datetime.now().date()
             consultas_hoje = Consulta.objects.filter(data_aberta__user=request.user).filter(data_aberta__data__gte=hoje).filter(data_aberta__data__lt=hoje + timedelta(days=1))
             consultas_restantes = Consulta.objects.exclude(id__in=consultas_hoje.values('id')).filter(data_aberta__user=request.user)
-
             return render(request, 'consultas_medico.html', {'consultas_hoje': consultas_hoje, 'consultas_restantes': consultas_restantes, 'is_medico': is_medico(request.user)})
-        
+
         data_filtrada = datetime.strptime(data_filtrada, '%Y-%m-%d')
         consultas_hoje = Consulta.objects.filter(data_aberta__user=request.user).filter(data_aberta__data__gte=data_filtrada).filter(data_aberta__data__lt=data_filtrada + timedelta(days=1))
         consultas_restantes = Consulta.objects.exclude(id__in=consultas_hoje.values('id')).filter(data_aberta__user=request.user)
         return render(request, 'consultas_medico.html', {'consultas_hoje': consultas_hoje, 'is_medico': is_medico(request.user)})
 
-    if not is_medico(request.user):
-        messages.add_message(request, constants.WARNING, 'Somente médicos podem acessar essa página.')
-        return redirect('/usuarios/sair')
-    
     hoje = datetime.now().date()
-    
-
     consultas_hoje = Consulta.objects.filter(data_aberta__user=request.user).filter(data_aberta__data__gte=hoje).filter(data_aberta__data__lt=hoje + timedelta(days=1))
     consultas_restantes = Consulta.objects.exclude(id__in=consultas_hoje.values('id')).filter(data_aberta__user=request.user)
 
@@ -298,49 +293,15 @@ def grafico_desempenho_medico(request):
         messages.add_message(request, constants.WARNING, 'você não tem acesso a essa página.')
         return redirect('/usuarios/sair')
     
-    
+    consultas = Consulta.objects.filter(data_aberta__user=request.user)\
+    .filter(data_aberta__data__range = [datetime.now().date() - timedelta(days=7), datetime.now().date() + timedelta(days=1) ])\
+    .values('data_aberta__data').annotate(quantidade=Count('id'))
 
-    # Obtendo os dados das consultas
-    consultas = Consulta.objects.filter(data_aberta__user=request.user)
-    consultas_atendidas = consultas.filter(status='I').count()
-    print(consultas_atendidas)
-    consultas_finalizadas = consultas.filter(status='F').count()
-    print(consultas_finalizadas)
-    consultas_canceladas = consultas.filter(status='C').count()
-    print(consultas_canceladas)
+    datas = [i['data_aberta__data'].strftime("%d-%m-%Y") for i in consultas]
+    quantidade = [i['quantidade'] for i in consultas]
 
-    if consultas_atendidas == 0 and consultas_finalizadas == 0 and consultas_canceladas == 0:
-        #messages.add_message(request, constants.WARNING, 'Todas as consultas estão com valor Zero.')
-        return redirect('/pacientes/home/')
+    #print(datas)
+    #print(quantidade)
 
+    return render(request, 'dashboard.html', {'datas':datas, 'quantidade':quantidade, 'is_medico': is_medico(request.user)})
 
-    # Criando uma imagem para o gráfico
-    largura = 800
-    altura = 600
-    cor_fundo = (255, 255, 255)
-    cor_barras = [(0, 255, 0), (0, 0, 255), (255, 0, 0)]
-    imagem = Image.new('RGB', (largura, altura), cor_fundo)
-    draw = ImageDraw.Draw(imagem)
-
-    # Desenhando as barras do gráfico
-    padding = 50
-    barra_largura = (largura - padding * 4) / 3
-    barra_posicao = padding
-    fonte = ImageFont.load_default()
-    for i, (quantidade, status) in enumerate([(consultas_atendidas, 'Atendidas'), (consultas_finalizadas, 'Finalizadas'), (consultas_canceladas, 'Canceladas')]):
-        altura_barra = (altura - padding * 4) * quantidade / max(consultas_atendidas, consultas_finalizadas, consultas_canceladas)
-        barra = (barra_posicao, altura - altura_barra - padding * 2, barra_posicao + barra_largura, altura - padding * 2)
-        draw.rectangle(barra, fill=cor_barras[i])
-        draw.text((barra_posicao + barra_largura / 2 - 10, altura - altura_barra - padding * 2 - 30), str(quantidade), font=fonte, fill=(0, 0, 0))
-        barra_posicao += barra_largura + padding
-
-    # Desenhando legendas
-    legendas = ['Atendidas', 'Finalizadas', 'Canceladas']
-    for i, legenda in enumerate(legendas):
-        draw.rectangle((padding * (i + 1) + barra_largura * i, altura - padding * 2, padding * (i + 2) + barra_largura * (i + 1), altura - padding), fill=cor_barras[i])
-        draw.text((padding * (i + 1) + barra_largura * i + 35, altura - padding + 5), legenda, font=fonte, fill=(0, 0, 0))
-
-    # Salvando a imagem em um buffer de memória
-    response = HttpResponse(content_type='image/png')
-    imagem.save(response, 'PNG')
-    return response
