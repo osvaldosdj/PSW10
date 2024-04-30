@@ -12,25 +12,41 @@
 {% block 'body' %}
 {% include "partials/navbar.html" %}
 
-<br><br>
-teste
-<div class="container">
-    <div class="row">
-        <div class="col-md-8">
-            <p style="font-size: 25px" class="p-bold">Olá, <span class="color-dark">{{request.user.username}}.</span></p>
-        </div>
-    </div>
-</div>
+<div class = "container">
+    <br><br>
+    <canvas id="myChart"></canvas>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-body">
-                    <img src="{% url 'dashboard' %}" alt="Gráfico de Desempenho do Médico" class="img-fluid">
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('myChart');
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: {{datas|safe}},
+            datasets: [{
+                label: 'Consultas',
+                data: {{quantidade}},
+                borderWidth: 1
+            }]
+
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+
+
+
+
+    )
+
+
 {% endblock 'body' %}
