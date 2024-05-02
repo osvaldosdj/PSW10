@@ -6,12 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
-# githubActions
+#sonar-scanner
+.scannerwork
+sonar-project.properties
+
+#githubActions
 .github
-
-#devContainer
-.devcontainer
-
 
 # Distribution / packaging
 .Python
@@ -119,10 +119,3 @@ node_modules/
 
 # VS Code
 .vscode
-
-#Readme.md
-README.md
-
-#Sonar
-.scannerwork
-sonar-project.properties
