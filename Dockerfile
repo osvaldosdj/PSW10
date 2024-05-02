@@ -18,5 +18,7 @@ RUN pip install -r requirements.txt
 
 RUN python manage.py migrate
 
+RUN python manage.py createsuperuser --noinput --username $DJANGO_SUPERUSER_USERNAME --email $DJANGO_SUPERUSER_EMAIL --password DJANGO_SUPERUSER_PASSWORD
+
 # Adiciona o comando para iniciar o Django como ENTRYPOINT
 ENTRYPOINT ["python", "manage.py", "runserver", "0.0.0.0:8000"]

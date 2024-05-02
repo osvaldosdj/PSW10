@@ -8,6 +8,20 @@ __pycache__/
 
 #sonar-scanner
 .scannerwork
+sonar-project.properties
+
+#Docker
+Dockerfile
+.env
+.dockerignore
+.gitignore
+.git
+
+
+#Readme
+README.md
+
+
 
 # Distribution / packaging
 .Python
