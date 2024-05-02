@@ -16,7 +16,10 @@ Dockerfile
 .dockerignore
 .gitignore
 .git
+.github
 
+#VS
+.devcontainer
 
 #Readme
 README.md
