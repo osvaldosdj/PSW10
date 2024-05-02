@@ -6,6 +6,13 @@ __pycache__/
 # C extensions
 *.so
 
+# githubActions
+.github
+
+#devContainer
+.devcontainer
+
+
 # Distribution / packaging
 .Python
 build/
@@ -112,3 +119,10 @@ node_modules/
 
 # VS Code
 .vscode
+
+#Readme.md
+README.md
+
+#Sonar
+.scannerwork
+sonar-project.properties
