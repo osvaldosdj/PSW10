@@ -49,7 +49,7 @@ class Documento(models.Model):
     
 class Observacoes(models.Model):
     consulta = models.ForeignKey(Consulta, on_delete=models.DO_NOTHING)
-    observacao = models.TextField(null=True, blank=True)
+    observacao = models.TextField( blank=True)
     
 
     def __str__(self):
