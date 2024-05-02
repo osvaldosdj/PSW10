@@ -18,7 +18,9 @@ RUN pip install -r requirements.txt
 
 RUN python manage.py migrate
 
-RUN python create_superuser.py
+RUN chmod +x init.sh
+
+RUN ./init.sh
 
 # Adiciona o comando para iniciar o Django como ENTRYPOINT
 ENTRYPOINT ["python", "manage.py", "runserver", "0.0.0.0:8000"]
