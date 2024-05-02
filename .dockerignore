@@ -8,7 +8,6 @@ __pycache__/
 
 #sonar-scanner
 .scannerwork
-sonar-project.properties
 
 #githubActions
 .github
