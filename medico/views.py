@@ -7,6 +7,7 @@ from django.contrib.messages import constants
 from django.contrib import messages
 from paciente.models import Consulta, Documento, Observacoes
 from django.db.models import Count
+from django.views.decorators.http import require_GET, require_POST
 
 
 # Create your views here.
@@ -94,6 +95,7 @@ def abrir_horario(request):
         return redirect('/medicos/abrir_horario')
 
 
+@require_POST
 @login_required
 def consultas_medico(request):
 
