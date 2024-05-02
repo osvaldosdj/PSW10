@@ -1,12 +1,3 @@
-# Esse fluxo de trabalho usa ações que não são certificadas pelo GitHub.
-# São fornecidas por terceiros e regidas por
-# termos de serviço, política de privacidade e suporte separados
-# online.
-
-# O GitHub recomenda fixar ações em um SHA de commit.
-# Para obter uma versão mais recente, você precisará atualizar o SHA.
-# Você também pode fazer referência a uma marca ou branch, mas a ação pode ser alterada sem aviso.
-
 name: Publish Docker image
 
 on:
@@ -15,10 +6,10 @@ on:
         - main
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
+  docker:
+    name: Publish Docker image
     runs-on: ubuntu-latest
-    needs: Sonar
+    needs: sonar
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -44,3 +35,25 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  sonar:
+    name: Sonar
+    on:
+      push:
+        branches:
+          - main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
