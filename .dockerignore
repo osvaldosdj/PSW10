@@ -8,8 +8,7 @@ __pycache__/
 
 #sonar-scanner
 .scannerwork
-
-#githubActions
+sonar-project.properties
 .github
 
 # Distribution / packaging
